@@ -2,14 +2,15 @@ var express = require("express");
 var app = express();
 var router = express.Router();
 var HomeController = require("../controllers/HomeController");
-const userController = require("../controllers/userController");
+const Usercontroller = require("../controllers/userController");
 
 router.get('/', HomeController.index);
 
-router.post('/user', userController.create);
-router.get('/user', userController.index);
-router.get('/user/:id', userController.findUser);
-router.put('/user', userController.edit);
-router.delete('/user/:id', userController.remove);
+router.post('/user', Usercontroller.create);
+router.get('/user', Usercontroller.index);
+router.get('/user/:id', Usercontroller.findUser);
+router.put('/user', Usercontroller.edit);
+router.delete('/user/:id', Usercontroller.remove);
+router.post('/recoverpassword', Usercontroller.recoverPassword);
 
 module.exports = router;
