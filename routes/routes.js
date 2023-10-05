@@ -10,4 +10,8 @@ router.post('/user', userController.create);
 
 router.get('/user', userController.index);
 
+router.get('/user/:id', userController.findUser);
+
+router.put('/user', userController.edit);
+
 module.exports = router;

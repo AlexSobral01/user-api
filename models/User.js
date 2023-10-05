@@ -13,6 +13,22 @@ class User {
     }
   }
 
+  async findById(id) {
+    try {
+      const result = await Knex.select(['id','name','email','role']).where({id: id}).table('users');
+
+      if (result.length > 0) {
+        return result[0];
+      } else {
+        return undefined;
+      }
+
+    } catch (err) {
+      console.log(err);
+      return[];
+    }
+  }
+
   async new(name, email, password) {
     try {
       const hash = await bcrypt.hash(password, 10);
@@ -35,6 +51,43 @@ class User {
     } catch(err) {
       console.log(err);
       return false;
+    }
+  }
+
+  async update(id, email, name, role) {
+    const user = await this.findById(id);
+
+    if (user != undefined) {
+      const editUser = {};
+
+      if (email != undefined) {
+        if(email != user.email) {
+          const result = await this.findEmail(email);
+          if (!result) {
+            editUser.email = email;
+          } else {
+            return {status: false, err: "E-mail já cadastrado"}
+          }
+        }
+      }
+
+      if (name != undefined) {
+        editUser.name = name;
+      }
+
+      if (role != undefined) {
+        editUser.role = role;
+      }
+
+      try {
+        await Knex.update(editUser).where({id: id}).table("users");
+        return {status: true}
+      } catch (error) {
+        return {status: false, error}
+      }
+
+    } else {
+      return {status: false, err: "O usuário não existe!"}
     }
   }
 }
