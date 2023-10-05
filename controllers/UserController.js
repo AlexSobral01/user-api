@@ -58,6 +58,19 @@ class UserController {
       res.send("Ocorreu um erro no servidor!")
     }
   }
+
+  async remove(req, res) {
+    const id = req.params.id;
+    const result = await User.delete(id);
+
+    if (result.status) {
+      res.status(200);
+      res.send('tudo ok');
+    } else {
+      res.status(406);
+      res.send(result.err);
+    }
+  }
 }
 
 module.exports = new UserController();
