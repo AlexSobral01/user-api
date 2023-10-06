@@ -1,5 +1,6 @@
 const Knex = require('../database/connection');
 const bcrypt = require('bcrypt');
+const PasswordToken = require('./PasswordToken');
 
 class User {
 
@@ -31,7 +32,7 @@ class User {
 
   async findByEmail(email) {
     try {
-      const result = await Knex.select(['id','name','email','role']).where({email: email}).table('users');
+      const result = await Knex.select(['id','name','password','email','role']).where({email: email}).table('users');
 
       if (result.length > 0) {
         return result[0];
@@ -120,6 +121,12 @@ class User {
     } else {
       return {status: false, err: "usuario não existe, portanto não pode ser deletado"}
     }
+  }
+  
+  async changePassword(newPassword,id,token) {
+    const hash = await bcrypt.hash(newPassword, 10);    
+    await Knex.update({password: hash}).where({id: id}).table('users');
+    await PasswordToken.setUsed(token);
   }
 }
 

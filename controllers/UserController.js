@@ -1,6 +1,11 @@
 const User = require('../models/User');
 const PasswordToken = require('../models/PasswordToken');
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const secret = 'klocfirjmko4503md3lt4y3ul8422sgu8';
+
 class UserController {
   async index (req, res) {
     const users = await User.findAll();
@@ -83,6 +88,42 @@ class UserController {
     } else {
       res.status(406);
       res.send(result.err);
+    }
+  }
+
+  async changePassword(req, res) {
+    const token = req.body.token;
+    const password = req.body.password;
+
+    const isTokenValid = await PasswordToken.validate(token);
+
+    if (isTokenValid.status) {
+      await User.changePassword(password, isTokenValid.token.user_id, isTokenValid.token.token);
+      res.status(200);
+      res.send('senha alterada');
+    } else {
+      res.status(406);
+      res.send({err: 'token invalido'});
+    }
+  }
+  
+  async login (req, res) {
+    const {email, password} = req.body;
+    const user = await User.findByEmail(email);
+
+    if (user != undefined) {
+      const result = await bcrypt.compare(password, user.password);
+
+      if (result) {
+        const token = jwt.sign({ email: user.email, role: user.role }, secret);
+        res.status(200);
+        res.json({token: token});
+      } else {
+        res.status(406);
+        res.send('senha incorreta');
+      }
+    } else {
+
     }
   }
 }
